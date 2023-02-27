@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { FileBibEntry } from './file-bib-entry';
 import { TempFile } from './temp-file';
 
@@ -5,8 +6,8 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
     #upload;
     #download;
     constructor(
-        upload: (file: Buffer | ReadableStream) => Promise<{ path: string }>,
-        download: (path: string, content: 'buffer' | 'stream') => Promise<{ file: Buffer | ReadableStream }>
+        upload: (file: Buffer | Readable) => Promise<{ path: string }>,
+        download: (path: string, content: 'buffer' | 'stream') => Promise<{ file: Buffer | Readable }>
     ) {
         this.#upload = upload;
         this.#download = download;
@@ -17,7 +18,7 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
      * @param name
      * @returns FileBibEntry DB Entry
      */
-    async upload(file: Buffer | ReadableStream, name?: string): Promise<E> {
+    async upload(file: Buffer | Readable, name?: string): Promise<E> {
         const { path } = await this.#upload(file);
 
         return new FileBibEntry(path, name) as E;
@@ -29,7 +30,7 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
      * @param content
      * @returns buffer | stream
      */
-    async download(file: E | T, content: 'buffer' | 'stream' = 'stream'): Promise<{ file: Buffer | ReadableStream }> {
+    async download(file: E | T, content: 'buffer' | 'stream' = 'stream'): Promise<{ file: Buffer | Readable }> {
         if (file instanceof TempFile) {
             if (!file.view()) {
                 throw new Error('TempFile is not valid anymore');
