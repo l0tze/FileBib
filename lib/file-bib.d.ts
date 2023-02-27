@@ -3,7 +3,7 @@
 import { Readable } from 'stream';
 import { FileBibEntry } from './file-bib-entry';
 import { TempFile } from './temp-file';
-export declare class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile = TempFile> {
+export declare class FileBib {
     #private;
     constructor(upload: (file: Buffer | Readable) => Promise<{
         path: string;
@@ -16,14 +16,16 @@ export declare class FileBib<E extends FileBibEntry = FileBibEntry, T extends Te
      * @param name
      * @returns FileBibEntry DB Entry
      */
-    upload(file: Buffer | Readable, name?: string): Promise<E>;
+    upload(file: Buffer | Readable, name: string, options: {
+        name: string;
+    }): Promise<FileBibEntry>;
     /**
      * download file from disk as buffer or stream (default = stream)
      * @param file
      * @param content
      * @returns buffer | stream
      */
-    download(file: E | T, content?: 'buffer' | 'stream'): Promise<{
+    download(file: FileBibEntry | TempFile, content?: 'buffer' | 'stream'): Promise<{
         file: Buffer | Readable;
     }>;
     /**
@@ -34,8 +36,9 @@ export declare class FileBib<E extends FileBibEntry = FileBibEntry, T extends Te
      * @example
      * const tempFile = await fileBib.createTempFile(file, { validUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), remainingViews: 5 });
      */
-    createTempFile(file: E, options?: {
+    createTempFile(file: FileBibEntry, options?: {
         validUntil?: Date;
         remainingViews?: number;
-    }): T;
+        name?: string;
+    }): Omit<TempFile, 'isValid' | 'view'>;
 }

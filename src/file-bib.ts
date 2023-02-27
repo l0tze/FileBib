@@ -1,8 +1,9 @@
+import { randomUUID } from 'crypto';
 import { Readable } from 'stream';
 import { FileBibEntry } from './file-bib-entry';
 import { TempFile } from './temp-file';
 
-export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile = TempFile> {
+export class FileBib {
     #upload;
     #download;
     constructor(
@@ -18,10 +19,18 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
      * @param name
      * @returns FileBibEntry DB Entry
      */
-    async upload(file: Buffer | Readable, name?: string): Promise<E> {
+    async upload(file: Buffer | Readable, name: string, options: { name: string }): Promise<FileBibEntry> {
         const { path } = await this.#upload(file);
 
-        return new FileBibEntry(path, name) as E;
+        return {
+            path,
+            uuid: randomUUID(),
+            originalName: name,
+            name: options.name,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null,
+        };
     }
 
     /**
@@ -30,12 +39,15 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
      * @param content
      * @returns buffer | stream
      */
-    async download(file: E | T, content: 'buffer' | 'stream' = 'stream'): Promise<{ file: Buffer | Readable }> {
-        if (file instanceof TempFile) {
+    async download(
+        file: FileBibEntry | TempFile,
+        content: 'buffer' | 'stream' = 'stream'
+    ): Promise<{ file: Buffer | Readable }> {
+        if ('view' in file) {
             if (!file.view()) {
                 throw new Error('TempFile is not valid anymore');
             }
-            return this.#download(file.bibEntry.path, content);
+            return this.#download(file.path, content);
         }
         return this.#download(file.path, content);
     }
@@ -48,7 +60,16 @@ export class FileBib<E extends FileBibEntry = FileBibEntry, T extends TempFile =
      * @example
      * const tempFile = await fileBib.createTempFile(file, { validUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), remainingViews: 5 });
      */
-    createTempFile(file: E, options?: { validUntil?: Date; remainingViews?: number }): T {
-        return new TempFile(file, options) as T;
+    createTempFile(
+        file: FileBibEntry,
+        options?: { validUntil?: Date; remainingViews?: number; name?: string }
+    ): Omit<TempFile, 'isValid' | 'view'> {
+        return {
+            url: randomUUID(),
+            path: file.path,
+            name: options?.name ?? file.name ?? file.originalName,
+            validUntil: options?.validUntil ?? new Date(Date.now() + 1000 * 60 * 15),
+            remainingViews: options?.remainingViews ?? 1,
+        };
     }
 }

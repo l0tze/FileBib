@@ -1,37 +1,12 @@
-import { randomUUID } from 'crypto';
-import { FileBibEntry } from './file-bib-entry';
-
-export class TempFile {
+export interface TempFile {
     url: string;
-    bibEntry: FileBibEntry;
+    path: string;
+    name: string;
+
+    bibEntryId?: unknown;
 
     validUntil?: Date;
     remainingViews?: number;
-
-    constructor(bibEntry: FileBibEntry, options?: { validUntil?: Date; remainingViews?: number }) {
-        this.url = randomUUID();
-        this.bibEntry = bibEntry;
-        this.validUntil = options?.validUntil;
-        this.remainingViews = options?.remainingViews;
-    }
-
-    isValid(): boolean {
-        if (this.validUntil && this.validUntil < new Date()) {
-            return false;
-        }
-        if (this.remainingViews && this.remainingViews <= 0) {
-            return false;
-        }
-        return true;
-    }
-
-    view(): boolean {
-        if (this.isValid()) {
-            return false;
-        }
-        if (this.remainingViews) {
-            this.remainingViews--;
-        }
-        return true;
-    }
+    isValid(): boolean;
+    view(): boolean;
 }

@@ -1,13 +1,10 @@
-import { FileBibEntry } from './file-bib-entry';
-export declare class TempFile {
+export interface TempFile {
     url: string;
-    bibEntry: FileBibEntry;
+    path: string;
+    name: string;
+    bibEntryId?: unknown;
     validUntil?: Date;
     remainingViews?: number;
-    constructor(bibEntry: FileBibEntry, options?: {
-        validUntil?: Date;
-        remainingViews?: number;
-    });
     isValid(): boolean;
     view(): boolean;
 }

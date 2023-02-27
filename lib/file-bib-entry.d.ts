@@ -1,11 +1,9 @@
-export declare class FileBibEntry {
-    id: any;
+export interface FileBibEntry {
     path: string;
-    uuid?: string;
-    originalName?: string;
-    fileName?: string;
+    uuid: string;
+    originalName: string;
+    name?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
-    constructor(path: string, originalName?: string, fileName?: string);
 }
