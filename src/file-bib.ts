@@ -19,17 +19,14 @@ export class FileBib {
      * @param name
      * @returns FileBibEntry DB Entry
      */
-    async upload(file: Buffer | Readable, name: string, options: { name: string }): Promise<FileBibEntry> {
+    async upload(file: Buffer | Readable, name: string, options?: { name?: string }): Promise<FileBibEntry> {
         const { path } = await this.#upload(file);
 
         return {
             path,
             uuid: randomUUID(),
             originalName: name,
-            name: options.name,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            deletedAt: null,
+            name: options?.name,
         };
     }
 

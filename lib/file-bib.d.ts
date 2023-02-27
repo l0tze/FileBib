@@ -16,8 +16,8 @@ export declare class FileBib {
      * @param name
      * @returns FileBibEntry DB Entry
      */
-    upload(file: Buffer | Readable, name: string, options: {
-        name: string;
+    upload(file: Buffer | Readable, name: string, options?: {
+        name?: string;
     }): Promise<FileBibEntry>;
     /**
      * download file from disk as buffer or stream (default = stream)
